@@ -38,4 +38,10 @@ const getUserLocation = async (onSuccess, onError) => {
   );
 };
 
-export { getUserLocation, getGeolocationStatus }
+const reverseGeocodingAPICall = async (latitud, longitud) => {
+  const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitud}&lon=${longitud}`);
+  const data = await response.json();
+  return data;
+}
+
+export { getUserLocation, getGeolocationStatus, reverseGeocodingAPICall }

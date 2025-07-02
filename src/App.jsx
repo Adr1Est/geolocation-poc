@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { getGeolocationStatus, getUserLocation } from './geolocation-service/geolocation-service'
+import { getGeolocationStatus, getUserLocation, reverseGeocodingAPICall } from './geolocation-service/geolocation-service'
 import Loader from './Loader'
 import InfoComponent from './InfoComponent'
 
 function App() {
   const [geolocationStatus, setGeolocationStatus] = useState(null)
   const [currentLocation, setCurrentLocation] = useState(null)
+  const [localization, setLocalization] = useState(null)
   const [errorMsg, setErrorMsg] = useState(null)
 
   const handleClick = () => {
@@ -54,6 +55,22 @@ function App() {
   useEffect(() => {
     saveCoordsToLocalStorage()
     console.log(currentLocation)
+    if(currentLocation){
+      const getLocateFromAPI = async () => {
+        const locate = await reverseGeocodingAPICall(currentLocation.latitud, currentLocation.longitud)
+        console.log(locate)
+        setLocalization({
+          street: locate.address.road,
+          quarter: locate.address.quarter,
+          suburb: locate.address.suburb,
+          city: locate.address.city,
+          country: locate.address.country,
+        })
+        return 
+      }
+
+      getLocateFromAPI()
+    }
   }, [currentLocation])
 
   return (
@@ -70,7 +87,7 @@ function App() {
         </div>
         
         {errorMsg ? <p>Error: {errorMsg}</p> : <p>👽</p>}
-        {currentLocation ? <InfoComponent latitude={currentLocation.latitud} longitude={currentLocation.longitud} /> : <Loader /> }
+        {currentLocation ? <InfoComponent latitude={currentLocation.latitud} longitude={currentLocation.longitud} localization={localization} /> : <Loader /> }
       </div>
     </>
   )
